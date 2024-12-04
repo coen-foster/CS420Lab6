@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 public class TokenManager extends UnicastRemoteObject implements TokenManager_Interface {
     private static final long serialVersionUID = 1L;
-	private int tokenHolder = -1;
+	private int tokenHolder = 1;
     private final PriorityQueue<Request> requestQueue;
 
     public TokenManager() throws RemoteException {
@@ -45,11 +45,7 @@ public class TokenManager extends UnicastRemoteObject implements TokenManager_In
             tokenHolder = nextRequest.processId;
             System.out.println("Granting token to process " + tokenHolder);
             Process_Interface process = (Process_Interface) Naming.lookup("rmi://localhost/Process" + tokenHolder);
-            if (process != null) {
-                process.receiveToken();
-            } else {
-                System.err.println("Process lookup failed.");
-            }
+            process.receiveToken();
         }
     }
 

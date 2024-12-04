@@ -17,20 +17,21 @@ public class Process extends UnicastRemoteObject implements Process_Interface {
     }
 
     @Override
-    public synchronized void requestCriticalSection() throws RemoteException, MalformedURLException, NotBoundException {
+    public synchronized void requestCriticalSection() throws RemoteException, MalformedURLException, NotBoundException, InterruptedException {
         sequenceNumber++;
-        System.out.println("Requesting critical section with sequence number: " + sequenceNumber);
+        System.out.println("Process " + getProcessId() + " Requesting critical section with sequence number: " + sequenceNumber);
         tokenManager.requestEntry(getProcessId(), sequenceNumber);
         
-        while (!hasToken) {
-            System.out.println("Waiting for token...");
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        while(true) {
+	        if (!hasToken) {
+	            System.out.println("Process " + getProcessId() + " Waiting for token...");
+	        }
+	        else {
+	        	System.out.println("Process " + getProcessId() + " entering critical section.");
+	        	break;
+	        }
+	        Thread.sleep(100);
         }
-        System.out.println("Process " + getProcessId() + " entering critical section.");
     }
 
     @Override
@@ -46,10 +47,9 @@ public class Process extends UnicastRemoteObject implements Process_Interface {
     }
 
     @Override
-    public synchronized void receiveToken() throws RemoteException {
+    public void receiveToken() throws RemoteException {
         System.out.println("Received token for process " + getProcessId());
         hasToken = true;
-        notify();
     }
     
     private int getProcessId() {
